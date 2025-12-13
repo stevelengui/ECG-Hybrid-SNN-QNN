@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+
+# Models
+*.pth
+*.h5
+*.hdf5
+
+# Build files
+build/
+*.o
+*.elf
+*.bin
+
+# Data (big files)
+*.dat
+*.mat
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
