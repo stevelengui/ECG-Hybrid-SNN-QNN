@@ -1,4 +1,5 @@
 #include "numutils.h"
+#include "uart.h"
 #include <stdint.h>
 
 // Simple PRNG state
@@ -21,45 +22,47 @@ int32_t fp_divide(int32_t a, int32_t b, uint8_t shift) {
 }
 
 void uart_puthex(uint32_t value) {
-    // Cette fonction utilise uart_putchar, donc elle reste dans uart.c
-    // ou on peut la laisser ici si elle utilise une fonction publique
     const char hex_digits[] = "0123456789ABCDEF";
     char buffer[9];
-    buffer[8] = '\0';
     
     for (int i = 7; i >= 0; i--) {
         buffer[i] = hex_digits[value & 0xF];
         value >>= 4;
     }
+    buffer[8] = '\0';
     
-    // Ces fonctions doivent être définies dans uart.c
-    extern void uart_puts(const char *s);
     uart_puts("0x");
     uart_puts(buffer);
 }
 
+// Version simplifiée de uart_putfloat (éviter les opérations flottantes)
 void uart_putfloat(float value, uint8_t decimals) {
-    // Convert float to integer part
-    int32_t int_part = (int32_t)value;
+    // Convertir en entiers pour l'affichage
+    int int_part = (int)value;
+    int sign = 1;
     
-    // Ces fonctions doivent être définies dans uart.c
-    extern void uart_putint(int32_t value);
-    extern void uart_puts(const char *s);
+    if (value < 0) {
+        sign = -1;
+        int_part = -int_part;
+        uart_putchar('-');
+    }
     
+    // Partie entière
     uart_putint(int_part);
     
+    // Partie décimale (simplifiée)
     if (decimals > 0) {
-        uart_puts(".");
+        uart_putchar('.');
         
-        // Get fractional part
-        float frac = value - int_part;
+        // Calculer la partie décimale sans opérations flottantes complexes
+        float frac = value - (float)(int_part * sign);
         if (frac < 0) frac = -frac;
         
-        for (uint8_t i = 0; i < decimals; i++) {
-            frac *= 10;
+        for (uint8_t d = 0; d < decimals; d++) {
+            frac = frac * 10.0f;
             int digit = (int)frac;
             uart_putint(digit);
-            frac -= digit;
+            frac = frac - (float)digit;
         }
     }
 }

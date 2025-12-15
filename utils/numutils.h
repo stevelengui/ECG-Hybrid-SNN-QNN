@@ -12,6 +12,8 @@ int32_t fp_divide(int32_t a, int32_t b, uint8_t shift);
 
 // Utility functions for UART output
 void uart_puthex(uint32_t value);
+
+// Version simplifiée de uart_putfloat
 void uart_putfloat(float value, uint8_t decimals);
 
 #endif // NUMUTILS_H

@@ -50,7 +50,7 @@ int uart_available(void) {
     return !(uart->RXDATA & 0x80000000);
 }
 
-// uart_putint reste uniquement ici
+// uart_putint - version optimisée pour embedded
 void uart_putint(int32_t val) {
     char buffer[12];
     int i = 0;
@@ -67,6 +67,11 @@ void uart_putint(int32_t val) {
     if (is_neg) uart_putchar('-');
     while (i > 0) uart_putchar(buffer[--i]);
 }
+
+// uart_putfloat - SUPPRIMÉ (déplacé à numutils.c)
+// void uart_putfloat(float value, uint8_t decimals) {
+//     ...
+// }
 
 void uart_hexdump(uint32_t value) {
     const char hex[] = "0123456789ABCDEF";
@@ -85,7 +90,8 @@ void uart_printf(const char *fmt, ...) {
                 case 'd': uart_putint(va_arg(args, int32_t)); break;
                 case 'x': uart_hexdump(va_arg(args, uint32_t)); break;
                 case 's': uart_puts(va_arg(args, char*)); break;
-                default:  uart_putchar(*fmt);
+                // %f supprimé car nécessite opérations flottantes
+                default: uart_putchar(*fmt); break;
             }
         } else {
             uart_putchar(*fmt);
@@ -95,14 +101,12 @@ void uart_printf(const char *fmt, ...) {
     va_end(args);
 }
 
-#if UART_DEBUG
+#if defined(UART_DEBUG) && UART_DEBUG
 void uart_print_registers(void) {
-    uart_printf("\nUART Registers:\n"
-                "TXDATA: 0x%x\n"
-                "RXDATA: 0x%x\n"
-                "TXCTRL: 0x%x\n"
-                "DIV:    0x%x\n",
-                uart->TXDATA, uart->RXDATA, 
-                uart->TXCTRL, uart->DIV);
+    uart_puts("\nUART Registers:\n");
+    uart_puts("TXDATA: 0x"); uart_hexdump(uart->TXDATA); uart_puts("\n");
+    uart_puts("RXDATA: 0x"); uart_hexdump(uart->RXDATA); uart_puts("\n");
+    uart_puts("TXCTRL: 0x"); uart_hexdump(uart->TXCTRL); uart_puts("\n");
+    uart_puts("DIV:    0x"); uart_hexdump(uart->DIV); uart_puts("\n");
 }
 #endif
