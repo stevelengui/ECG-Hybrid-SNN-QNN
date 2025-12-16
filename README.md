@@ -13,11 +13,21 @@ pip install -r requirements.txt
 python src/model.py
 
 # Compile for RISC-V
-make PLATFORM=hifive1  # For HiFive1 (RV32IMAC)
-make PLATFORM=k210     # For Kendryte K210 (RV64GC)
+make PLATFORM=hifive1 all # For HiFive1 (RV32IMAC)
+make PLATFORM=k210 all     # For Kendryte K210 (RV64GC)
+
+# Compilation avec optimisation thermique médical (ΔT ≤ 5°C)
+make DOMAIN=medical PLATFORM=hifive1 clean all
+
+# Compilation avec débogage activé
+make DEBUG=1 PLATFORM=hifive1 clean all
+
+# Voir toutes les options
+make help
 
 📊 Results
-Accuracy: 97.49% on MIT-BIH Arrhythmia Database
+Accuracy:
+ 97.49% on MIT-BIH Arrhythmia Database
 
 Model Size: 7.51 KB (under 9.1 KB target ✓)
 
